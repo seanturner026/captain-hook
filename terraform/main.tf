@@ -39,8 +39,8 @@ resource "aws_lambda_function" "lot_rat" {
 
 resource "aws_cloudwatch_event_rule" "daily" {
   name                = "lot-rat-daily"
-  description         = "Trigger lot-rat daily at 11:30 AM EST"
-  schedule_expression = "cron(30 16 * * ? *)"
+  description         = "Trigger lot-rat daily at 9:30 AM EST"
+  schedule_expression = "cron(30 14 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {
