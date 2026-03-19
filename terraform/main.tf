@@ -37,6 +37,11 @@ resource "aws_lambda_function" "lot_rat" {
 
 }
 
+resource "aws_cloudwatch_log_group" "lot_rat" {
+  name              = "/aws/lambda/lot-rat"
+  retention_in_days = 1
+}
+
 resource "aws_cloudwatch_event_rule" "daily" {
   name                = "lot-rat-daily"
   description         = "Trigger lot-rat daily at 9:30 AM EST"

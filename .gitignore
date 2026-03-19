@@ -17,3 +17,5 @@ bin/*
 
 # Go
 lot-pirate
+
+.DS_Store
