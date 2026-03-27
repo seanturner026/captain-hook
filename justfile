@@ -3,18 +3,40 @@ _default:
 
 set dotenv-load
 set dotenv-path := ".env"
+set quiet
 
+lambdas := "scheduler receiver dispatcher"
+tier := `terraform -chdir=terraform workspace show`
+
+# go
+# -------------------------------------------------------------------
 alias b := build
-[doc("create binary")]
+[doc("build all lambda binaries")]
+[group('go')]
 build:
-    GOARCH=arm64 GOOS=linux go build -o bin/bootstrap ./cmd/
+  #!/usr/bin/env bash
+  set -euo pipefail
+  for name in {{ lambdas }}; do
+    echo "building $name..."
+    mkdir -p bin/$name
+    GOARCH=arm64 GOOS=linux go build -o bin/$name/bootstrap ./cmd/$name/
+  done
 
 alias r := run
-[doc("run script")]
+[doc("run scheduler locally")]
+[group('go')]
 run:
-    go run ./cmd/
+  go run ./cmd/scheduler/
 
+# terraform
+# -------------------------------------------------------------------
 alias d := deploy
-[doc("deploy with terraform")]
+[doc("build all lambdas and deploy with terraform")]
+[group('terraform')]
 deploy: build
-    terraform -chdir=terraform apply
+  terraform -chdir=terraform apply -var-file=var.{{ tier }}.tfvars
+
+[doc("select or create a workspace — just workspace staging")]
+[group('terraform')]
+workspace tier:
+  terraform -chdir=terraform workspace select {{ tier }} || terraform -chdir=terraform workspace new {{ tier }}
