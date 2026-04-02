@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "lambda" {
 resource "aws_cloudwatch_event_rule" "daily" {
   name                = "${local.name}-daily"
   description         = "Trigger ${local.name} scheduler daily at 9:30 AM EST"
-  schedule_expression = "cron(30 14 * * ? *)"
+  schedule_expression = "cron(30 13 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "scheduler" {
