@@ -8,8 +8,8 @@ locals {
       schedule_expression = "cron(45 13 ? * MON-FRI *)"
     }
     weekend = {
-      description         = "Trigger ${local.name} scheduler weekends at 11:30 PM EDT"
-      schedule_expression = "cron(30 11 ? * SAT,SUN *)"
+      description         = "Trigger ${local.name} scheduler weekends at 12:00 PM EDT"
+      schedule_expression = "cron(0 16 ? * SAT,SUN *)"
     }
   }
 
@@ -17,8 +17,7 @@ locals {
     scheduler = {
       description = "Scrapes Lot Radio schedule and posts daily Discord lineup"
       env_vars = {
-        SSM_PARAMETER     = "/${local.name}/discord"
-        SSM_PARAMETER_KEY = "public_key"
+        SSM_PARAMETER = "/${local.name}/discord"
       }
     }
     receiver = {
