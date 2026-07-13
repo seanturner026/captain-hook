@@ -20,5 +20,6 @@ lot-pirate
 
 # Terraform
 *.tfvars
+app.state
 
 .DS_Store

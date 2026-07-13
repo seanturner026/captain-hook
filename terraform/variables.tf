@@ -16,6 +16,16 @@ variable "discord_bot_token" {
   ephemeral   = true
 }
 
+variable "email_address" {
+  description = <<-DESC
+    Email address to notify when the production scheduler logs an ERROR. Only required/used for the production
+    workspace. After first apply, AWS emails a confirmation link that must be clicked before the subscription
+    is active.
+  DESC
+  type        = string
+  default     = ""
+}
+
 variable "tier" {
   description = "Deployment tier — must match the Terraform workspace name"
   type        = string

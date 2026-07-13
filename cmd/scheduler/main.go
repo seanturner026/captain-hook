@@ -88,17 +88,65 @@ func parseSchedule(html string) ([]Event, error) {
 	}
 	combined := sb.String()
 
-	scheduleRe := regexp.MustCompile(`"schedule":\s*(\[[\s\S]*?\])\s*,\s*"enabled"`)
-	sm := scheduleRe.FindStringSubmatch(combined)
-	if sm == nil {
-		return nil, fmt.Errorf("could not find schedule data in page")
+	scheduleJSON, err := extractScheduleArray(combined)
+	if err != nil {
+		return nil, err
 	}
 
 	var events []Event
-	if err := json.Unmarshal([]byte(sm[1]), &events); err != nil {
+	if err := json.Unmarshal([]byte(scheduleJSON), &events); err != nil {
 		return nil, fmt.Errorf("failed to parse schedule JSON: %w", err)
 	}
 	return events, nil
+}
+
+// extractScheduleArray locates the first `"schedule":[...]` array in the
+// combined Next.js RSC payload and returns its raw JSON, tracking bracket
+// depth (and skipping over string contents) rather than relying on a
+// specific key appearing right after the array. The page has previously
+// changed which sibling key follows "schedule" (e.g. "enabled" became
+// "from"/"to"), so anchoring on that key is fragile; this only assumes the
+// array itself is well-formed JSON.
+func extractScheduleArray(s string) (string, error) {
+	const key = `"schedule":`
+	keyIdx := strings.Index(s, key)
+	if keyIdx == -1 {
+		return "", fmt.Errorf("could not find schedule data in page")
+	}
+
+	start := strings.IndexByte(s[keyIdx:], '[')
+	if start == -1 {
+		return "", fmt.Errorf("could not find schedule array in page")
+	}
+	start += keyIdx
+
+	depth := 0
+	inString := false
+	escaped := false
+	for i := start; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case inString:
+			switch {
+			case escaped:
+				escaped = false
+			case c == '\\':
+				escaped = true
+			case c == '"':
+				inString = false
+			}
+		case c == '"':
+			inString = true
+		case c == '[':
+			depth++
+		case c == ']':
+			depth--
+			if depth == 0 {
+				return s[start : i+1], nil
+			}
+		}
+	}
+	return "", fmt.Errorf("schedule array in page was not properly terminated")
 }
 
 func formatTime(t time.Time) string {

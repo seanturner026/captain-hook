@@ -6,7 +6,8 @@ lineup to Discord.
 # Setup
 
 1. Create Discord Channel and Application
-1. Generate Bot link with `bot` scopes `View Channels`, `Send Message` and `Embed Links` (oauth)
+1. Generate Bot link with `bot` scopes `View Channels`, `Send Message` and `Embed Links` (oauth) (see
+   https://discord.com/developers/applications for apps)
 1. Copy Bot token
 1. Fill in `tfvars`
 1. `just d`
